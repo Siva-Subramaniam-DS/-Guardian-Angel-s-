@@ -585,11 +585,12 @@ class TakeScheduleButton(View):
             await interaction.response.send_message(f"❌ This schedule has already been taken by {self.judge.display_name}.", ephemeral=True)
             return
         
-        # Check if judge can take more schedules
-        can_take, error_message = can_judge_take_schedule(interaction.user.id, max_assignments=3)
-        if not can_take:
-            await interaction.response.send_message(f"❌ {error_message}", ephemeral=True)
-            return
+        # Judges should have no limit on taking schedules. Only enforce limits for non-judge users.
+        if not judge_role:
+            can_take, error_message = can_judge_take_schedule(interaction.user.id, max_assignments=3)
+            if not can_take:
+                await interaction.response.send_message(f"❌ {error_message}", ephemeral=True)
+                return
         
         # Set flag to prevent race conditions
         self._taking_schedule = True
